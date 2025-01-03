@@ -1,0 +1,9 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "rootDir": "./src/generator",
+    "outDir": "./dist/generator",
+    "declaration": true,
+  },
+  "include": ["./src/generator"],
+}

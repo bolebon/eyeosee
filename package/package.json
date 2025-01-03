@@ -1,0 +1,63 @@
+{
+  "name": "eyeosee",
+  "version": "1.0.0",
+  "files": [
+    "dist"
+  ],
+  "main": "./dist/eyeosee.umd.js",
+  "module": "./dist/eyeosee.js",
+  "exports": {
+    ".": {
+      "import": "./dist/eyeosee.js",
+      "require": "./dist/eyeosee.umd.js",
+      "types": "./dist/eyeosee.d.ts"
+    },
+    "./bundler": {
+      "import": "./dist/generator/bundler.js",
+      "require": "./dist/generator/bundler.js",
+      "types": "./dist/generator/bundler.d.ts"
+    }
+  },
+  "bin": {
+    "eyeosee-generator": "./dist/generator/cli.js"
+  },
+  "scripts": {
+    "clean": "rm -rf dist",
+    "build": "npm run clean && vite build && tsc -p tsconfig.generator.json",
+    "preinstall": "npm install vite",
+    "prepack": "node scripts/prepack.js",
+    "postpack": "node scripts/postpack.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "@types/lodash.partition": "^4.6.9",
+    "@types/node": "^22.7.4",
+    "@types/react": "^18.3.5",
+    "@types/yargs": "^17.0.33",
+    "install-peerdeps": "^3.0.3",
+    "typescript": "^5.6.2",
+    "vite": "^5.4.8",
+    "vite-plugin-dts": "^4.2.1"
+  },
+  "dependencies": {
+    "esbuild-register": "^3.6.0",
+    "glob": "^11.0.0",
+    "lodash.partition": "^4.6.0",
+    "prettier": "^3.3.3",
+    "ts-morph": "^24.0.0",
+    "unplugin": "^1.14.1",
+    "yargs": "^17.7.2"
+  },
+  "peerDependencies": {
+    "react": "^18.3.1",
+    "vite": ">=5.0.0"
+  },
+  "peerDependenciesMeta": {
+    "vite": {
+      "optional": true
+    }
+  }
+}
