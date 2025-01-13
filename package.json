@@ -1,0 +1,71 @@
+{
+  "name": "eyeosee",
+  "version": "1.0.0",
+  "files": [
+    "dist"
+  ],
+  "main": "./dist/eyeosee.umd.js",
+  "module": "./dist/eyeosee.js",
+  "exports": {
+    ".": {
+      "import": "./dist/eyeosee.js",
+      "require": "./dist/eyeosee.umd.js",
+      "types": "./dist/eyeosee.d.ts"
+    },
+    "./bundler": {
+      "import": "./dist/generator/bundler.js",
+      "require": "./dist/generator/bundler.js",
+      "types": "./dist/generator/bundler.d.ts"
+    }
+  },
+  "bin": {
+    "eyeosee-generator": "./dist/generator/cli.js"
+  },
+  "scripts": {
+    "clean": "rm -rf dist",
+    "build": "npm run clean && vite build && tsc -p tsconfig.generator.json",
+    "preinstall": "npm install vite",
+    "prepack": "node scripts/prepack.js",
+    "postpack": "node scripts/postpack.js",
+    "test": "vitest"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "@testing-library/dom": "^10.4.0",
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/react": "^16.1.0",
+    "@types/lodash.partition": "^4.6.9",
+    "@types/micromatch": "^4.0.9",
+    "@types/node": "^22.7.4",
+    "@types/react": "^18.3.5",
+    "@types/yargs": "^17.0.33",
+    "@vitest/coverage-v8": "2.1.8",
+    "happy-dom": "^16.3.0",
+    "install-peerdeps": "^3.0.3",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "typescript": "^5.6.2",
+    "vite-plugin-dts": "^4.2.1",
+    "vitest": "^2.1.8"
+  },
+  "dependencies": {
+    "glob": "^11.0.0",
+    "lodash.partition": "^4.6.0",
+    "micromatch": "^4.0.8",
+    "prettier": "^3.3.3",
+    "ts-morph": "^24.0.0",
+    "unplugin": "^1.14.1",
+    "vite": "^5.4.11",
+    "yargs": "^17.7.2"
+  },
+  "peerDependencies": {
+    "react": "18 || 19"
+  },
+  "peerDependenciesMeta": {
+    "vite": {
+      "optional": true
+    }
+  }
+}
