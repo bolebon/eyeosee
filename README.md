@@ -1,7 +1,6 @@
 # 👁️ EyeOSee
 
-_Simplify dependency injection in React with ease and type safety._
-
+Simplify dependency injection in React with ease and type safety.
 
 ## 📚 Table of Contents
 
@@ -163,7 +162,7 @@ export const fetchUser = registerFunction(
   "fetchUser",
   []
 )<
-  [id: number], // 📝 Input type: an array with a single `number` argument for user ID
+  [id: number], // 📝 Arguments: a `number` argument for user ID
   Promise<User> // 📝 Return type: a Promise resolving to a `User` object
 >(async (id) => {
   // 🌐 Perform the API call to fetch user data
@@ -194,8 +193,10 @@ export type UserState = {
 // ✅ Register the useUser hook with fetchUser as a dependency
 export const useUser = registerHook("useUser", [
   "fetchUser",
-])// 📝 Input: user ID, Output: UserState
-<[id: number], UserState>((id, deps) => {
+])<
+  [id: number], // 📝 Arguments: a `number` argument for user ID
+  UserState // Return type: a `UserState` object
+>((id, deps) => {
   const [state, setState] = useState<UserState>({
     user: undefined,
     isLoading: true,
@@ -217,8 +218,8 @@ export const useUser = registerHook("useUser", [
 
 **🔍 Explanation:**
 
-- **Typed Arguments:** `[id: number]` ensures that the hook receives a user ID.
-- **Typed Return:** `UserState` guarantees the state shape (user data + loading status).
+- **Typed Arguments:** `[id: number]` is the list of arguments expected by the hook.
+- **Typed Return:** `UserState` is the return type of the hook.
 - **Dependency Injection:** `fetchUser` is injected using `deps` to avoid direct imports.
 
 
@@ -256,8 +257,8 @@ export const UserProfile = registerComponent("UserProfile", ["useUser"])
 
 **🔍 Explanation:**
 
-- **Typed Props:** `<UserProfileProps>` strictly defines component props.
-- **Dependency Injection:** `__deps.useUser(id)` supplies user data without importing the hook.
+- **Typed Props:** `<UserProfileProps>` strictly defines props expected by the component.
+- **Dependency Injection:** `useUser` is injected using `__deps` to avoid direct imports.
 
 
 ### 4️⃣ Rendering the Component
@@ -340,7 +341,7 @@ Hooks often have dependencies that make them tricky to test. With EyeOSee, you c
 
 ```typescript
 import { beforeAll, test, expect } from "vitest";
-import { renderHook, act } from "@testing-library/react";
+import { renderHook, act, waitFor } from "@testing-library/react";
 import { initContainer } from "./eyeosee-container.gen";
 import { useUser } from "./useUser";
 import type { User } from "./fetchUser";
@@ -350,15 +351,15 @@ beforeAll(initContainer);
 
 test("useUser loads user data", async () => {
   // 🔧 Create a mock promise
-  let resolve: (user: User) => void;
-  const userPromise = new Promise<User>((res) => {
-    resolve = res;
-  });
+  const { promise, resolve } = Promise.withResolvers<User>();
 
   // 🧪 Render the hook with a mock dependency
   const { result } = renderHook(() =>
     useUser(42, {
-      fetchUser: () => userPromise,
+      fetchUser: (id) => {
+        expect(id).toEqual(42);
+        return promise;
+      },
     })
   );
 
@@ -374,14 +375,16 @@ test("useUser loads user data", async () => {
     });
   });
 
-  // ✅ Check if the hook updated correctly
-  expect(result.current).toEqual({
-    isLoading: false,
-    user: {
-      id: 42,
-      name: "John Smith",
-      avatarUrl: "https://cdn.acme.com/users/42.png",
-    },
+  await waitFor(() => {
+    // ✅ Check if the hook updated correctly
+    expect(result.current).toEqual({
+      isLoading: false,
+      user: {
+        id: 42,
+        name: "John Smith",
+        avatarUrl: "https://cdn.acme.com/users/42.png",
+      },
+    });
   });
 });
 ```
@@ -407,9 +410,19 @@ beforeAll(initContainer);
 
 test("UserProfile displays a loading state", () => {
   // 🧪 Render with mocked loading state
-  render(<UserProfile id={42} __deps={{
-    useUser: () => ({ isLoading: true, user: undefined })
-  }} />);
+  render(
+    <UserProfile
+      id={42}
+      __deps={{
+        useUser: (id) => {
+          // 🧐 Verify that the right id is passed
+          expect(id).toEqual(42);
+
+          return { isLoading: true, user: undefined };
+        },
+      }}
+    />
+  );
 
   // 🔍 Check for loading indicator
   expect(screen.getByText("Loading...")).toBeInTheDocument();
@@ -417,20 +430,28 @@ test("UserProfile displays a loading state", () => {
 
 test("UserProfile displays user data", () => {
   // 🧪 Render with mock user data
-  render(<UserProfile id={42} __deps={{
-    useUser: () => ({
-      isLoading: false,
-      user: {
-        id: 42,
-        name: "John Smith",
-        avatarUrl: "https://cdn.acme.com/users/42.png",
-      },
-    }),
-  }} />);
+  render(
+    <UserProfile
+      id={42}
+      __deps={{
+        useUser: () => ({
+          isLoading: false,
+          user: {
+            id: 42,
+            name: "John Smith",
+            avatarUrl: "https://cdn.acme.com/users/42.png",
+          },
+        }),
+      }}
+    />
+  );
 
   // 🧐 Verify the displayed content
   expect(screen.getByTestId("name")).toHaveTextContent("John Smith");
-  expect(screen.getByTestId("avatar")).toHaveAttribute("src", "https://cdn.acme.com/users/42.png");
+  expect(screen.getByTestId("avatar")).toHaveAttribute(
+    "src",
+    "https://cdn.acme.com/users/42.png"
+  );
 });
 ```
 
