@@ -8,13 +8,12 @@ Simplify dependency injection in React with ease and type safety.
 2. [🚀 Features](#-features)
 3. [📦 Installation](#-installation)
 4. [🏁 Getting Started](#-getting-started)
-5. [⚙️ Core Concepts](#-core-concepts)
+5. [⚙️ Core Concepts](#%EF%B8%8F-core-concepts)
 6. [💡 Usage Examples](#-usage-examples)
 7. [🧪 Testing](#-testing)
-7. [📌 Conclusion](#-conclusion)
-8. [🙌 Contributing](#-contributing)
-9. [📄 License](#-license)
-
+8. [📌 Conclusion](#-conclusion)
+9. [🙌 Contributing](#-contributing)
+10. [📄 License](#-license)
 
 ## ✨ Why EyeOSee?
 
@@ -28,14 +27,12 @@ Without EyeOSee, managing dependencies in a React app can become a tangled web:
 
 **EyeOSee** solves this by providing a smooth, automated way to inject dependencies, keeping your code modular and testable.
 
-
 ## 🚀 Features
 
 - 🛠 **Effortless Dependency Injection** - Simplify how your React components, hooks, and helpers connect.
 - 🧩 **Seamless Separation of Concerns** - Cleanly split logic for better maintainability.
 - 🔒 **TypeScript Native** - Fully type-safe for confident coding.
 - 🧪 **Testing Made Simple** - Isolate and test each piece independently.
-
 
 ## 📦 Installation
 
@@ -104,7 +101,7 @@ module.exports = {
 };
 ```
 
-⚠️ *Note: Webpack requires restarting the dev server when adding new files.*
+⚠️ _Note: Webpack requires restarting the dev server when adding new files._
 
 ## ⚙️ Core Concepts
 
@@ -119,6 +116,7 @@ At the heart of EyeOSee is its **container system**, designed to manage and inje
 
 EyeOSee provides intuitive functions to register different kinds of dependencies:
 
+- **`registerConfig`** → Registers parameters meant to be injected.
 - **`registerFunction`** → Registers utility/helper functions.
 - **`registerHook`** → Registers React hooks for dependency injection.
 - **`registerComponent`** → Registers React components with injected dependencies.
@@ -136,14 +134,30 @@ Let’s walk through a practical example of how EyeOSee can simplify dependency 
 
 To follow the **Single Responsibility Principle**, we'll split the logic into:
 
-1. **`fetchUser`** – A function to handle the API call.
-2. **`useUser`** – A custom hook to manage data fetching and loading states.
-3. **`UserProfile`** – A React component that displays the user data.
+1. **`config`** – An object containing the configuration.
+2. **`fetchUser`** – A function to handle the API call.
+3. **`useUser`** – A custom hook to manage data fetching and loading states.
+4. **`UserProfile`** – A React component that displays the user data.
 
 Without EyeOSee, these entities would tightly import each other, making unit testing cumbersome. With EyeOSee, we inject dependencies, making everything more modular and easier to test.
 
+### 1️⃣ Setting the `config` object
 
-### 1️⃣ Creating the `fetchUser` Function
+```typescript
+import { registerConfig } from "./eyeosee-container.gen";
+
+// ✅ Register the CONFIG object in the container
+// This makes the object available for dependency injection.
+export const config = registerConfig("CONFIG", {
+  API_BASE_URL: "https://my-api.com"
+})
+```
+
+**🔍 Explanation:**
+
+- **Dependency Injection:**: `registerConfig` makes `CONFIG` object available for injection
+
+### 2️⃣ Creating the `fetchUser` Function
 
 ```typescript
 import { registerFunction } from "./eyeosee-container.gen";
@@ -160,13 +174,13 @@ type User = {
 // This makes the function available for dependency injection.
 export const fetchUser = registerFunction(
   "fetchUser",
-  []
+  ["CONFIG"] // 💉 Inject CONFIG in the dependencies
 )<
   [id: number], // 📝 Arguments: a `number` argument for user ID
   Promise<User> // 📝 Return type: a Promise resolving to a `User` object
->(async (id) => {
+>(async (id, deps) => {
   // 🌐 Perform the API call to fetch user data
-  return await fetch(`https://my-api.com/users/${id}`).then((r) => r.json());
+  return await fetch(`${deps.CONFIG.API_BASE_URL}/users/${id}`).then((r) => r.json());
 });
 ```
 
@@ -174,10 +188,9 @@ export const fetchUser = registerFunction(
 
 - **Typed Arguments:** `[id: number]` defines that the function expects a number as input.
 - **Typed Return:** `Promise<User>` enforces that the function returns a `User` object wrapped in a promise.
-- **Dependency Injection:** `registerFunction` makes `fetchUser` available for injection.
+- **Dependency Injection:** `fetchUser` recieves the `CONFIG` object in the `deps` argument.
 
-
-### 2️⃣ Creating the `useUser` Hook
+### 3️⃣ Creating the `useUser` Hook
 
 ```typescript
 import { useState, useEffect } from "react";
@@ -191,9 +204,7 @@ export type UserState = {
 };
 
 // ✅ Register the useUser hook with fetchUser as a dependency
-export const useUser = registerHook("useUser", [
-  "fetchUser",
-])<
+export const useUser = registerHook("useUser", ["fetchUser"])<
   [id: number], // 📝 Arguments: a `number` argument for user ID
   UserState // Return type: a `UserState` object
 >((id, deps) => {
@@ -222,8 +233,7 @@ export const useUser = registerHook("useUser", [
 - **Typed Return:** `UserState` is the return type of the hook.
 - **Dependency Injection:** `fetchUser` is injected using `deps` to avoid direct imports.
 
-
-### 3️⃣ Creating the `UserProfile` Component
+### 4️⃣ Creating the `UserProfile` Component
 
 ```typescript
 import { registerComponent } from './eyeosee-container.gen';
@@ -260,7 +270,6 @@ export const UserProfile = registerComponent("UserProfile", ["useUser"])
 - **Typed Props:** `<UserProfileProps>` strictly defines props expected by the component.
 - **Dependency Injection:** `useUser` is injected using `__deps` to avoid direct imports.
 
-
 ### 4️⃣ Rendering the Component
 
 ```typescript
@@ -287,7 +296,6 @@ ReactDOM.createRoot(rootElement).render(
 - **`ContainerInitializer`:** Ensures dependencies are ready before rendering.
 - **Fallback UI:** Displays a loading message while initializing the container.
 
-
 ## 🧪 Testing
 
 Now that we have set up dependency injection with EyeOSee, let's explore how it simplifies testing in our React applications. By isolating dependencies, EyeOSee makes unit tests more reliable and easier to write.
@@ -307,15 +315,21 @@ import { fetchUser } from "./fetchUser";
 beforeAll(initContainer);
 
 test("fetchUser fetches the user data", async () => {
+  const TEST_API_URL = "https://my-api.test";
+
   // 🔍 Mock the API call
-  const scope = nock("https://my-api.com").get("/users/42").reply(200, {
+  const scope = nock(TEST_API_URL).get("/users/42").reply(200, {
     id: 42,
     name: "John Smith",
     avatarUrl: "https://cdn.acme.com/users/42.png",
   });
 
   // 📥 Call the fetchUser function
-  const user = await fetchUser(42);
+  const user = await fetchUser(42, {
+    // Override the value of the CONFIG object to provide
+    // our own value
+    CONFIG: { API_BASE_URL: TEST_API_URL }
+  });
 
   // ✅ Ensure the mock API was called
   scope.done();
@@ -334,6 +348,7 @@ test("fetchUser fetches the user data", async () => {
 - **`beforeAll(initContainer)`** ensures the dependency container is initialized before tests run.
 - **`nock`** mocks the external API, eliminating real network calls.
 - The test verifies that `fetchUser` properly retrieves and formats user data.
+- The value of a dependency can be overriden when calling the function
 
 ### 2️⃣ Testing the `useUser` Hook in Isolation
 

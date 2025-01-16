@@ -1,6 +1,7 @@
 import React from "react";
 import {
   ComponentContainerItem,
+  ConfigContainerItem,
   Container,
   ContainerDependencies,
   ContainerItemType,
@@ -53,4 +54,15 @@ export function registerHookFactory<CD extends ContainerDependencies>(
   container: Container<CD>
 ) {
   return registerFunctionFactory(container, ContainerItemType.HOOK);
+}
+
+export function registerConfigFactory<CD extends ContainerDependencies>(
+  container: CD
+) {
+  return function registerConfig<
+    N extends string,
+    C extends Record<string, any>,
+  >(name: N, config: C) {
+    return container.registerConfig(name, config) as ConfigContainerItem<N, C>;
+  };
 }

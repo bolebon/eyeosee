@@ -6,24 +6,30 @@ import {
   registerComponentFactory,
   registerHookFactory,
   registerFunctionFactory,
+  registerConfigFactory,
 } from "../core/registration-helpers";
 
 describe("Core", () => {
   const container = new Container<{
+    CONFIG: { DECORATION: string };
     decorateMessage: (message: string) => string;
     useDecoratedMessage: (message: string) => string;
     MessageDecorator: React.ComponentType<{ message: string }>;
   }>();
 
+  const registerConfig = registerConfigFactory(container);
   const registerComponent = registerComponentFactory(container);
   const registerHook = registerHookFactory(container);
   const registerFunction = registerFunctionFactory(container);
 
-  const decorateMessage = registerFunction(
-    "decorateMessage",
-    []
-  )<[message: string], string>((message) => {
-    return `** ${message} **`;
+  const config = registerConfig("CONFIG", {
+    DECORATION: "**",
+  });
+  const decorateMessage = registerFunction("decorateMessage", ["CONFIG"])<
+    [message: string],
+    string
+  >((message, deps) => {
+    return `${deps.CONFIG.DECORATION} ${message} ${deps.CONFIG.DECORATION}`;
   });
   const useDecoratedMessage = registerHook("useDecoratedMessage", [
     "decorateMessage",
@@ -36,6 +42,18 @@ describe("Core", () => {
     const decoratedMessage = __deps.useDecoratedMessage(message);
 
     return <p>{decoratedMessage}</p>;
+  });
+
+  describe("#registerConfig", () => {
+    it("should return the config with metadata", () => {
+      expect(config).toEqual({
+        DECORATION: "**",
+        __containerItemMetadata: {
+          name: "CONFIG",
+          type: ContainerItemType.CONFIG,
+        },
+      });
+    });
   });
 
   describe("#registerFunction", () => {
