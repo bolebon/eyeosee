@@ -74,6 +74,7 @@ export class ContainerGenerator {
         registerComponentFactory,
         registerHookFactory,
         registerFunctionFactory,
+        registerConfigFactory,
         containerInitializerFactory,
         ExtractedContainerItem,
       } from "${eyeoseeModuleName}";
@@ -123,6 +124,7 @@ export class ContainerGenerator {
       export const registerComponent = registerComponentFactory(container);
       export const registerHook = registerHookFactory(container);
       export const registerFunction = registerFunctionFactory(container);
+      export const registerConfig = registerConfigFactory(container);
 
       export const initContainer = async () => {
         await Promise.all([

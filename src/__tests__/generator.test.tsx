@@ -32,7 +32,7 @@ describe("Generator", () => {
 
     expect(containerFileContent).toEqual(
       expect.stringMatching(
-        /export\s+type\s+ContainerDependencies\s*=\s*{\s*useDecoratedMessage:\s*ExtractedContainerItem<\s*typeof\s+useDecoratedMessage_(\d+)\s*>;\s*decorateMessage:\s*ExtractedContainerItem<\s*typeof\s+decorateMessage_(\d+)\s*>;\s*MessageDecorator:\s*ExtractedContainerItem<\s*typeof\s+default_(\d+)\s*>;\s*};\s*export\s+const\s+container\s*=\s*new\s+Container<\s*ContainerDependencies\s*>\(\s*\);/
+        /export\s+type\s+ContainerDependencies\s*=\s*{\s*useDecoratedMessage:\s*ExtractedContainerItem<\s*typeof\s+useDecoratedMessage_(\d+)\s*>;\s*decorateMessage:\s*ExtractedContainerItem<\s*typeof\s+decorateMessage_(\d+)\s*>;\s*CONFIG:\s*ExtractedContainerItem<\s*typeof\s+config_(\d+)\s*>;\s*MessageDecorator:\s*ExtractedContainerItem<\s*typeof\s+default_(\d+)\s*>;\s*};\s*export\s+const\s+container\s*=\s*new\s+Container<\s*ContainerDependencies\s*>\(\s*\);/
       )
     );
 

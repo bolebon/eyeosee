@@ -2,6 +2,7 @@ import React from "react";
 import { useMemo } from "react";
 
 export enum ContainerItemType {
+  CONFIG = "CONFIG",
   COMPONENT = "COMPONENT",
   FUNCTION = "FUNCTION",
   HOOK = "HOOK",
@@ -9,8 +10,10 @@ export enum ContainerItemType {
 
 export type ContainerDependencies = { [key: string]: any };
 
-export type DependencyList<CD extends ContainerDependencies> =
-  readonly (Extract<keyof CD, string>)[];
+export type DependencyList<CD extends ContainerDependencies> = readonly Extract<
+  keyof CD,
+  string
+>[];
 
 export type DependencySet<
   CD extends ContainerDependencies,
@@ -47,13 +50,19 @@ export type HookContainerItem<
   N extends string,
   D,
   A extends any[] = any[],
-  R extends any = any
+  R extends any = any,
 > = FunctionContainerItem<N, D, A, R, ContainerItemType.HOOK>;
+
+export type ConfigContainerItem<
+  N extends string,
+  C extends Record<string, any> = Record<string, any>,
+> = C & ContainerItemMetadata<N, ContainerItemType.CONFIG>;
 
 export type ContainerItem<N extends string, CD extends ContainerDependencies> =
   | ComponentContainerItem<N, CD>
   | HookContainerItem<N, CD>
-  | FunctionContainerItem<N, CD>;
+  | FunctionContainerItem<N, CD>
+  | ConfigContainerItem<N>;
 
 export type ExtractedContainerItem<T> =
   T extends ComponentContainerItem<string, any, infer P>
@@ -74,7 +83,9 @@ export type ExtractedContainerItem<T> =
             ContainerItemType.HOOK
           >
         ? (...args: A) => R
-        : never;
+        : T extends ConfigContainerItem<string, infer C>
+          ? C
+          : never;
 
 export class Container<CD extends ContainerDependencies> {
   private _items: {
@@ -179,6 +190,22 @@ export class Container<CD extends ContainerDependencies> {
     this._items[name] = WrapperFunction as ContainerItem<N, CD>;
 
     return WrapperFunction;
+  }
+
+  registerConfig<N extends string, C extends Record<any, string>>(
+    name: N,
+    config: C
+  ) {
+    const configItem: ConfigContainerItem<N, C> = {
+      ...config,
+      __containerItemMetadata: {
+        name,
+        type: ContainerItemType.CONFIG,
+      },
+    };
+
+    this._items[name] = configItem;
+    return configItem;
   }
 
   get<N extends Extract<keyof CD, string>>(
