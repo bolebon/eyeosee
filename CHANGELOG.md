@@ -1,3 +1,11 @@
+# 1.0.0 (2025-01-22)
+
+
+### Features
+
+* add possibility to inject configuration ([10b7cf5](https://github.com/bolebon/eyeosee/commit/10b7cf542d3d63c84228f4416e5b1eb64a20694a))
+* setup deployment pipeline ([1e21b33](https://github.com/bolebon/eyeosee/commit/1e21b3315b3f003df4cd8a8506d2f1f4f1b77649))
+
 # [1.0.0-beta.2](https://github.com/bolebon/eyeosee/compare/v1.0.0-beta.1...v1.0.0-beta.2) (2025-01-16)
 
 
