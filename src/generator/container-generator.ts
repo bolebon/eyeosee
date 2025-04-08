@@ -34,9 +34,8 @@ export class ContainerGenerator {
     const files = await glob(this.includedFiles, {
       ignore: this.excludedFiles,
       absolute: true,
-      posix: true, // For Windows compatibility
     });
-    
+
     const dependencies = await this._getDependenciesFromFiles(
       files,
       this.tsConfigFilePath
@@ -100,8 +99,10 @@ export class ContainerGenerator {
           `{ ${namedExports.map((exp) => `${exp.name} as ${exp.alias}`).join(", ")} }`
         );
       }
+      // Normalize path to use forward slashes for imports
+      const relativePath = path.relative(basePath, file).split(path.sep).join('/');
       containerFileContent.push(
-        `import type ${importsList.join(", ")} from "./${path.relative(basePath, file)}";`
+        `import type ${importsList.join(", ")} from "./${relativePath}";`
       );
     });
 
@@ -131,7 +132,11 @@ export class ContainerGenerator {
         await Promise.all([
           ${dependencies
             .filter(([_, exports]) => exports.length > 0)
-            .map(([file]) => `import("./${path.relative(basePath, file)}")`)
+            .map(([file]) => {
+              // Normalize path to use forward slashes for dynamic imports
+              const relativePath = path.relative(basePath, file).split(path.sep).join('/');
+              return `import("./${relativePath}")`;
+            })
             .join(",\n")}
         ]);
       };
@@ -159,10 +164,8 @@ export class ContainerGenerator {
 
     const dependencies: Dependencies = await Promise.all(
       files.map(async (filePath) => {
-        const filePathWithoutExtension = filePath
-          .split(".")
-          .slice(0, -1)
-          .join(".");
+        // Use path.extname for more reliable extension handling
+        const filePathWithoutExtension = filePath.replace(path.extname(filePath), '');
         const file = project.getSourceFileOrThrow(filePath);
         const exports = file.getExportedDeclarations();
         const elligibleExports = Array.from(exports.entries()).flatMap(
