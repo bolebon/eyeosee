@@ -1,3 +1,10 @@
+## [1.0.1-beta.1](https://github.com/bolebon/eyeosee/compare/v1.0.0...v1.0.1-beta.1) (2025-04-08)
+
+
+### Bug Fixes
+
+* remove vite from deps and ensure windows compatibility ([54cb6f4](https://github.com/bolebon/eyeosee/commit/54cb6f43c686efaf2c19daa5555620373234c222))
+
 # 1.0.0 (2025-01-22)
 
 
