@@ -1,0 +1,31 @@
+name: Sync Main to Beta
+on:
+  workflow_run:
+    workflows: ["Release"]
+    branches: [main]
+    types: [completed]
+
+jobs:
+  sync-branches:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GH_TOKEN }}
+          ref: main
+      
+      - name: Configure Git
+        run: |
+          git config user.name "GitHub Actions Bot"
+          git config user.email "actions@github.com"
+      
+      - name: Sync Main to Beta
+        run: |
+          git checkout main
+          git pull origin main
+          git checkout beta
+          git pull origin beta
+          git rebase main -m "chore: rebase beta on main after release"
+          git push origin beta --force 

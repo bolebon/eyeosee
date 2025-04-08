@@ -1,0 +1,49 @@
+name: Promote Beta to Main
+on:
+  workflow_dispatch:
+    inputs:
+      title:
+        description: 'PR title'
+        required: true
+        default: 'chore: promote beta to main'
+      body:
+        description: 'PR body'
+        required: false
+        default: 'Promoting beta changes to main branch for production release'
+
+jobs:
+  create-promotion-pr:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+          ref: beta
+      
+      - name: Check for changes
+        id: check-changes
+        run: |
+          git fetch origin main:main
+          if [[ -z "$(git log --oneline main..beta)" ]]; then
+            echo "has_changes=false" >> $GITHUB_OUTPUT
+          else
+            echo "has_changes=true" >> $GITHUB_OUTPUT
+          fi
+      
+      - name: Create PR from beta to main
+        if: steps.check-changes.outputs.has_changes == 'true'
+        uses: peter-evans/create-pull-request@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          base: main
+          branch: beta
+          title: ${{ github.event.inputs.title }}
+          body: |
+            ${{ github.event.inputs.body }}
+            
+            ---
+            ⚠️ **IMPORTANT**: Please use "Rebase and merge" option when merging this PR.
+          labels: |
+            automated-pr
+            promotion 
