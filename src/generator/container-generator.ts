@@ -34,6 +34,7 @@ export class ContainerGenerator {
     const files = await glob(this.includedFiles, {
       ignore: this.excludedFiles,
       absolute: true,
+      posix: true, // For Windows compatibility
     });
     
     const dependencies = await this._getDependenciesFromFiles(
