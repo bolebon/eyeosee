@@ -1,3 +1,10 @@
+## [1.0.1-beta.2](https://github.com/bolebon/eyeosee/compare/v1.0.1-beta.1...v1.0.1-beta.2) (2025-04-09)
+
+
+### Bug Fixes
+
+* windows compatibility ([e9ddb80](https://github.com/bolebon/eyeosee/commit/e9ddb80fbf9054c92a0f7157e494559c74b62610))
+
 ## [1.0.1-beta.1](https://github.com/bolebon/eyeosee/compare/v1.0.0...v1.0.1-beta.1) (2025-04-08)
 
 
