@@ -9,6 +9,7 @@ import {
   DEFAULT_CONTAINER_PATH,
   DEFAULT_TSCONFIG_PATH,
 } from "./defaults.const";
+import { toPOSIXPath } from "./helpers";
 
 interface EyeOSeePluginOptions {
   name?: string;
@@ -57,7 +58,7 @@ const EyeOSeePlugin = createUnplugin<EyeOSeePluginOptions>(
       // Hook: Called when files are updated
       async watchChange(id: string) {
         const relativePath = path.relative(".", id);
-        const isContainer = id == path.resolve(containerPath);
+        const isContainer = id === toPOSIXPath(path.resolve(containerPath));
 
         if (!isContainer && isIncluded(relativePath)) {
           await doGenerate();
