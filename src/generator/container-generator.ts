@@ -6,6 +6,7 @@ import { glob } from "glob";
 import prettier from "prettier";
 import partition from "lodash.partition";
 import { Project } from "ts-morph";
+import { toPOSIXPath } from "./helpers";
 
 type Dependencies = [
   file: string,
@@ -100,7 +101,7 @@ export class ContainerGenerator {
         );
       }
       // Normalize path to use forward slashes for imports
-      const relativePath = path.relative(basePath, file).split(path.sep).join('/');
+      const relativePath = toPOSIXPath(path.relative(basePath, file));
       containerFileContent.push(
         `import type ${importsList.join(", ")} from "./${relativePath}";`
       );
@@ -133,8 +134,7 @@ export class ContainerGenerator {
           ${dependencies
             .filter(([_, exports]) => exports.length > 0)
             .map(([file]) => {
-              // Normalize path to use forward slashes for dynamic imports
-              const relativePath = path.relative(basePath, file).split(path.sep).join('/');
+              const relativePath = toPOSIXPath(path.relative(basePath, file));
               return `import("./${relativePath}")`;
             })
             .join(",\n")}
