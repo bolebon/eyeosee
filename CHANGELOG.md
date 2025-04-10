@@ -1,3 +1,10 @@
+## [1.0.1-beta.3](https://github.com/bolebon/eyeosee/compare/v1.0.1-beta.2...v1.0.1-beta.3) (2025-04-10)
+
+
+### Bug Fixes
+
+* avoid generation loop in the bundler plugin ([41eef2c](https://github.com/bolebon/eyeosee/commit/41eef2c13c8095e60089dcfe3fed2674936526e7))
+
 ## [1.0.1-beta.2](https://github.com/bolebon/eyeosee/compare/v1.0.1-beta.1...v1.0.1-beta.2) (2025-04-09)
 
 
